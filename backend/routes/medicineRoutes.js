@@ -1,0 +1,131 @@
+import express from 'express';
+import { body, validationResult } from 'express-validator';
+import Medicine from '../models/Medicine.js';
+import Sale from '../models/Sale.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import ownerOnly from '../middleware/ownerOnly.js';
+
+const router = express.Router();
+
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const { search, category } = req.query;
+    let query = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { batchNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    const medicines = await Medicine.find(query)
+      .populate('supplierId', 'name phone')
+      .sort({ createdAt: -1 });
+
+    res.json(medicines);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/low-stock', authMiddleware, async (req, res) => {
+  try {
+    const lowStock = await Medicine.find({
+      $expr: { $lte: ['$quantity', '$lowStockThreshold'] }
+    }).populate('supplierId', 'name phone');
+
+    res.json(lowStock);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/expiry-alert', authMiddleware, async (req, res) => {
+  try {
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    const expiringMedicines = await Medicine.find({
+      expiryDate: { $lte: thirtyDaysFromNow, $gte: new Date() }
+    }).populate('supplierId', 'name phone');
+
+    res.json(expiringMedicines);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/',
+  authMiddleware,
+  ownerOnly,
+  [
+    body('name').trim().notEmpty().withMessage('Medicine name is required'),
+    body('category').trim().notEmpty().withMessage('Category is required'),
+    body('batchNumber').trim().notEmpty().withMessage('Batch number is required'),
+    body('expiryDate').isISO8601().withMessage('Valid expiry date is required'),
+    body('quantity').isInt({ min: 0 }).withMessage('Quantity must be a positive number'),
+    body('purchasePrice').isFloat({ min: 0 }).withMessage('Purchase price must be positive'),
+    body('sellingPrice').isFloat({ min: 0 }).withMessage('Selling price must be positive'),
+    body('supplierId').notEmpty().withMessage('Supplier is required')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const medicine = new Medicine(req.body);
+      await medicine.save();
+
+      const populatedMedicine = await Medicine.findById(medicine._id)
+        .populate('supplierId', 'name phone');
+
+      res.status(201).json({
+        message: 'Medicine added successfully',
+        medicine: populatedMedicine
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+router.put('/:id', authMiddleware, ownerOnly, async (req, res) => {
+  try {
+    const medicine = await Medicine.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, updatedAt: Date.now() },
+      { new: true, runValidators: true }
+    ).populate('supplierId', 'name phone');
+
+    if (!medicine) {
+      return res.status(404).json({ error: 'Medicine not found' });
+    }
+
+    res.json({ message: 'Medicine updated successfully', medicine });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/:id', authMiddleware, ownerOnly, async (req, res) => {
+  try {
+    const medicine = await Medicine.findByIdAndDelete(req.params.id);
+
+    if (!medicine) {
+      return res.status(404).json({ error: 'Medicine not found' });
+    }
+
+    res.json({ message: 'Medicine deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export default router;
