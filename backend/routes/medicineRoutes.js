@@ -1,7 +1,5 @@
 import express from 'express';
-import { body, validationResult } from 'express-validator';
 import Medicine from '../models/Medicine.js';
-import Sale from '../models/Sale.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import ownerOnly from '../middleware/ownerOnly.js';
 
@@ -60,26 +58,22 @@ router.get('/expiry-alert', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/',
-  authMiddleware,
-  ownerOnly,
-  async (req, res) => {
-    try {
-      const medicine = new Medicine(req.body);
-      await medicine.save();
+router.post('/', authMiddleware, ownerOnly, async (req, res) => {
+  try {
+    const medicine = new Medicine(req.body);
+    await medicine.save();
 
-      const populatedMedicine = await Medicine.findById(medicine._id)
-        .populate('supplierId', 'name phone');
+    const populatedMedicine = await Medicine.findById(medicine._id)
+      .populate('supplierId', 'name phone');
 
-      res.status(201).json({
-        message: 'Medicine added successfully',
-        medicine: populatedMedicine
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+    res.status(201).json({
+      message: 'Medicine added successfully',
+      medicine: populatedMedicine
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
 router.put('/:id', authMiddleware, ownerOnly, async (req, res) => {
   try {
