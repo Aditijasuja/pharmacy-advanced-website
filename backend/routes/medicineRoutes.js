@@ -5,7 +5,7 @@ import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, ownerOnly, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const medicine = new Medicine(req.body);
     await medicine.save();
