@@ -5,6 +5,23 @@ import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
+router.post('/', authMiddleware, ownerOnly, async (req, res) => {
+  try {
+    const medicine = new Medicine(req.body);
+    await medicine.save();
+
+    const populatedMedicine = await Medicine.findById(medicine._id)
+      .populate('supplierId', 'name phone');
+
+    res.status(201).json({
+      message: 'Medicine added successfully',
+      medicine: populatedMedicine
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const { search, category } = req.query;
