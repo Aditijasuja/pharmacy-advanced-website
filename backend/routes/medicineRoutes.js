@@ -5,6 +5,8 @@ import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
+console.log('Medicine routes loaded!');
+
 router.get('/test', (req, res) => {
   res.json({ message: 'Test route works!' });
 });
