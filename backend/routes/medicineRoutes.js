@@ -69,18 +69,23 @@ router.get('/expiry-alert', authMiddleware, async (req, res) => {
 });
 
 router.post('/', authMiddleware, ownerOnly, async (req, res) => {
+  console.log('POST / handler called');
   try {
+    console.log('Creating medicine with data:', req.body);
     const medicine = new Medicine(req.body);
     await medicine.save();
+    console.log('Medicine saved');
 
     const populatedMedicine = await Medicine.findById(medicine._id)
       .populate('supplierId', 'name phone');
+    console.log('Medicine populated');
 
     res.status(201).json({
       message: 'Medicine added successfully',
       medicine: populatedMedicine
     });
   } catch (error) {
+    console.error('Error in POST /:', error);
     res.status(500).json({ error: error.message });
   }
 });
