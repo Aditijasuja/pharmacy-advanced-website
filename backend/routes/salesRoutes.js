@@ -9,11 +9,9 @@ const router = express.Router();
 
 router.post('/',
   authMiddleware,
-  [
-    body('medicines').isArray({ min: 1 }).withMessage('At least one medicine is required'),
-    body('totalAmount').isFloat({ min: 0 }).withMessage('Total amount must be positive'),
-    body('paymentMode').isIn(['cash', 'upi', 'card']).withMessage('Invalid payment mode')
-  ],
+  body('medicines').isArray({ min: 1 }).withMessage('At least one medicine is required'),
+  body('totalAmount').isFloat({ min: 0 }).withMessage('Total amount must be positive'),
+  body('paymentMode').isIn(['cash', 'upi', 'card']).withMessage('Invalid payment mode'),
   async (req, res) => {
     try {
       const errors = validationResult(req);

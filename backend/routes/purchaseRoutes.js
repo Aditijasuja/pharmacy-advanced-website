@@ -9,11 +9,9 @@ const router = express.Router();
 router.post('/',
   authMiddleware,
   ownerOnly,
-  [
-    body('supplierId').notEmpty().withMessage('Supplier is required'),
-    body('medicines').isArray({ min: 1 }).withMessage('At least one medicine is required'),
-    body('totalCost').isFloat({ min: 0 }).withMessage('Total cost must be positive')
-  ],
+  body('supplierId').notEmpty().withMessage('Supplier is required'),
+  body('medicines').isArray({ min: 1 }).withMessage('At least one medicine is required'),
+  body('totalCost').isFloat({ min: 0 }).withMessage('Total cost must be positive'),
   async (req, res) => {
     try {
       const errors = validationResult(req);

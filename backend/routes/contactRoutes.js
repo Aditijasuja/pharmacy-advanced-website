@@ -7,11 +7,9 @@ import ownerOnly from '../middleware/ownerOnly.js';
 const router = express.Router();
 
 router.post('/',
-  [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('phone').trim().notEmpty().withMessage('Phone is required'),
-    body('message').trim().notEmpty().withMessage('Message is required')
-  ],
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('phone').trim().notEmpty().withMessage('Phone is required'),
+  body('message').trim().notEmpty().withMessage('Message is required'),
   async (req, res) => {
     try {
       const errors = validationResult(req);

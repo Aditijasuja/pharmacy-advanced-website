@@ -18,11 +18,9 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/',
   authMiddleware,
   ownerOnly,
-  [
-    body('name').trim().notEmpty().withMessage('Supplier name is required'),
-    body('phone').trim().notEmpty().withMessage('Phone is required'),
-    body('address').trim().notEmpty().withMessage('Address is required')
-  ],
+  body('name').trim().notEmpty().withMessage('Supplier name is required'),
+  body('phone').trim().notEmpty().withMessage('Phone is required'),
+  body('address').trim().notEmpty().withMessage('Address is required'),
   async (req, res) => {
     try {
       const errors = validationResult(req);
