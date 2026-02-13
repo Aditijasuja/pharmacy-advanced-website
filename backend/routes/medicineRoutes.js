@@ -63,16 +63,14 @@ router.get('/expiry-alert', authMiddleware, async (req, res) => {
 router.post('/',
   authMiddleware,
   ownerOnly,
-  [
-    body('name').trim().notEmpty().withMessage('Medicine name is required'),
-    body('category').trim().notEmpty().withMessage('Category is required'),
-    body('batchNumber').trim().notEmpty().withMessage('Batch number is required'),
-    body('expiryDate').isISO8601().withMessage('Valid expiry date is required'),
-    body('quantity').isInt({ min: 0 }).withMessage('Quantity must be a positive number'),
-    body('purchasePrice').isFloat({ min: 0 }).withMessage('Purchase price must be positive'),
-    body('sellingPrice').isFloat({ min: 0 }).withMessage('Selling price must be positive'),
-    body('supplierId').notEmpty().withMessage('Supplier is required')
-  ],
+  body('name').trim().notEmpty().withMessage('Medicine name is required'),
+  body('category').trim().notEmpty().withMessage('Category is required'),
+  body('batchNumber').trim().notEmpty().withMessage('Batch number is required'),
+  body('expiryDate').isISO8601().withMessage('Valid expiry date is required'),
+  body('quantity').isInt({ min: 0 }).withMessage('Quantity must be a positive number'),
+  body('purchasePrice').isFloat({ min: 0 }).withMessage('Purchase price must be positive'),
+  body('sellingPrice').isFloat({ min: 0 }).withMessage('Selling price must be positive'),
+  body('supplierId').notEmpty().withMessage('Supplier is required'),
   async (req, res) => {
     try {
       const errors = validationResult(req);
