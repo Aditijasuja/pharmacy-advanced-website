@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
-import medicineRoutes from './routes/medicineRoutes.js';
+import medicineRoutes from './routes/medicineRoutes2.js';
 import supplierRoutes from './routes/supplierRoutes.js';
 import salesRoutes from './routes/salesRoutes.js';
 import purchaseRoutes from './routes/purchaseRoutes.js';
