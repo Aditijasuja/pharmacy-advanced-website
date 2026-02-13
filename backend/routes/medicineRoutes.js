@@ -75,7 +75,7 @@ router.get('/expiry-alert', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/', authMiddleware, ownerOnly, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const medicine = new Medicine(req.body);
     await medicine.save();
