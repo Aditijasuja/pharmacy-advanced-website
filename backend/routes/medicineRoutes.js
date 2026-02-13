@@ -5,6 +5,14 @@ import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
+router.get('/test', (req, res) => {
+  res.json({ message: 'Test route works!' });
+});
+
+router.post('/test', (req, res) => {
+  res.json({ message: 'Test POST works!', data: req.body });
+});
+
 router.post('/', async (req, res) => {
   try {
     const medicine = new Medicine(req.body);
