@@ -56,10 +56,5 @@ const medicineSchema = new mongoose.Schema({
   }
 });
 
-medicineSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
 const Medicine = mongoose.model('Medicine', medicineSchema);
 export default Medicine;
