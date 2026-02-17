@@ -10,6 +10,8 @@ import purchaseRoutes from './routes/purchaseRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -49,6 +51,16 @@ app.use(errorHandler);
 const PORT = process.env.PORT;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
 });
 
 export default app;
