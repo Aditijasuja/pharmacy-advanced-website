@@ -20,7 +20,7 @@ const HomePage = () => {
                 <span className="text-sm font-medium">Trusted Since 1997</span>
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight" style={{ fontFamily: 'Manrope, sans-serif' }} data-testid="hero-heading">
-                Your Trusted Medical Store in Fazilka
+                Your Trusted Medical Store in City
               </h1>
               <p className="text-lg sm:text-xl text-blue-100 mb-8 leading-relaxed">
                 Quality medicines, surgical items, and healthcare products with home delivery services. Serving the community for over 25 years.
@@ -35,7 +35,7 @@ const HomePage = () => {
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+91 9876543210"
                   className="bg-blue-500 text-white px-8 py-4 rounded-full font-semibold hover:bg-blue-400 transition-all inline-flex items-center space-x-2"
                   data-testid="call-now-button"
                 >
@@ -53,7 +53,7 @@ const HomePage = () => {
                       <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <Pill className="w-6 h-6 text-white" />
                       </div>
-                      <p className="text-2xl font-bold text-blue-600">5000+</p>
+                      <p className="text-2xl font-bold text-blue-600">500+</p>
                       <p className="text-sm text-gray-600">Medicines</p>
                     </div>
                     <div className="bg-blue-50 p-6 rounded-xl text-center">
@@ -67,14 +67,14 @@ const HomePage = () => {
                       <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <Award className="w-6 h-6 text-white" />
                       </div>
-                      <p className="text-2xl font-bold text-blue-600">25+ Years</p>
+                      <p className="text-2xl font-bold text-blue-600">28+ Years</p>
                       <p className="text-sm text-gray-600">Experience</p>
                     </div>
                     <div className="bg-blue-50 p-6 rounded-xl text-center">
                       <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                         <MapPin className="w-6 h-6 text-white" />
                       </div>
-                      <p className="text-2xl font-bold text-blue-600">Fazilka</p>
+                      <p className="text-2xl font-bold text-blue-600">City</p>
                       <p className="text-sm text-gray-600">Punjab</p>
                     </div>
                   </div>
@@ -114,7 +114,7 @@ const HomePage = () => {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Home Delivery</h3>
               <p className="text-gray-600 leading-relaxed">
-                Quick and safe medicine delivery to your doorstep in Fazilka and nearby areas.
+                Quick and safe medicine delivery to your doorstep in City and nearby areas.
               </p>
             </div>
 
@@ -138,7 +138,7 @@ const HomePage = () => {
             Need Medicines? Order Now!
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Call us or visit our store for prescription medicines, surgical items, and healthcare products.
+            Call us or visit our store for prescription medicines, and healthcare products.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -147,7 +147,7 @@ const HomePage = () => {
               data-testid="cta-call-button"
             >
               <Phone className="w-5 h-5" />
-              <span>Call: +91 98765-43210</span>
+              <span>Call: +91 9876543210</span>
             </a>
             <Link
               to="/contact"

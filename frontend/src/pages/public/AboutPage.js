@@ -10,7 +10,7 @@ const AboutPage = () => {
             About G.K. Medicos
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Serving Fazilka community since 1997 with quality medicines and dedicated healthcare services.
+            Serving City community since 1997 with quality medicines and dedicated healthcare services.
           </p>
         </div>
 
@@ -21,13 +21,13 @@ const AboutPage = () => {
                 Our Story
               </h2>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Established in 1997, G.K. Medicos has been a trusted name in Fazilka, Punjab for over 25 years. We started with a simple mission: to provide quality medicines and healthcare products to our community.
+                Established in 1997, G.K. Medicos has been a trusted name in City, Punjab for over 25 years. We started with a simple mission: to provide quality medicines and healthcare products to our community.
               </p>
               <p className="text-gray-600 leading-relaxed mb-4">
                 Today, we serve thousands of customers with prescription medicines, surgical items, and healthcare essentials. Our commitment to quality, affordability, and customer service remains unwavering.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Located in the heart of Fazilka, we continue to be your reliable pharmacy in Fazilka for all medical needs.
+                Located in the heart of City, we continue to be your reliable pharmacy in City for all medical needs.
               </p>
             </div>
             <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-12 flex items-center justify-center">
@@ -79,10 +79,10 @@ const AboutPage = () => {
             Visit Us Today
           </h2>
           <p className="text-lg text-gray-600 mb-6">
-            Experience the best medical store in Fazilka. We're here to serve you.
+            Experience the best medical store in City. We're here to serve you.
           </p>
           <div className="text-blue-600 font-semibold text-lg">
-            Fazilka, Punjab - 152123 | Open: 8 AM - 10 PM
+            City, Punjab | Open: 9 AM - 9 PM
           </div>
         </div>
       </div>

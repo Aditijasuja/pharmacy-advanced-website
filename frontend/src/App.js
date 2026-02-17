@@ -108,6 +108,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/dashboard/add-medicine/:id" element={<AddMedicinePage />} />
+
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>

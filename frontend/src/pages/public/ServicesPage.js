@@ -12,13 +12,13 @@ const ServicesPage = () => {
     {
       icon: Package,
       title: 'Surgical Items',
-      description: 'Complete range of surgical items and medical equipment for hospitals and clinics in Fazilka.',
+      description: 'Complete range of surgical items and medical equipment for hospitals and clinics in City.',
       features: ['Surgical instruments', 'Medical disposables', 'Hospital supplies', 'First aid kits']
     },
     {
       icon: Truck,
       title: 'Home Delivery',
-      description: 'Fast and reliable medicine delivery service across Fazilka and nearby areas.',
+      description: 'Fast and reliable medicine delivery service across City and nearby areas.',
       features: ['Free delivery on orders above ₹500', 'Same-day delivery', 'Safe packaging', 'Track your order']
     },
     {
@@ -49,7 +49,7 @@ const ServicesPage = () => {
             Our Services
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Comprehensive pharmacy services in Fazilka for all your healthcare needs
+            Comprehensive pharmacy services in City for all your healthcare needs
           </p>
         </div>
 
@@ -85,7 +85,7 @@ const ServicesPage = () => {
             Need Medicines or Healthcare Products?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Contact us for prescription medicines, surgical items, and medicine home delivery in Fazilka
+            Contact us for prescription medicines, surgical items, and medicine home delivery in City
           </p>
           <a
             href="tel:+919876543210"
@@ -93,7 +93,7 @@ const ServicesPage = () => {
             data-testid="call-us-button"
           >
             <Phone className="w-5 h-5" />
-            <span>Call: +91 98765-43210</span>
+            <span>Call: +91 9876543210</span>
           </a>
         </div>
       </div>

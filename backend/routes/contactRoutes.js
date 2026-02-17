@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post('/', [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('phone').trim().notEmpty().withMessage('Phone is required'),
+  body('phone').trim().notEmpty().withMessage('Phone is required').isLength({min : 10 , max:10}).withMessage('Phone number must be of length 10').isNumeric().withMessage('Phone must contain only numbers'),
   body('message').trim().notEmpty().withMessage('Message is required')
 ], async (req, res) => {
   try {

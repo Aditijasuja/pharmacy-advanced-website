@@ -63,10 +63,10 @@ const SettingsPage = () => {
               <strong className="text-gray-900">Version:</strong> 1.0.0
             </p>
             <p>
-              <strong className="text-gray-900">Business:</strong> G.K. Medicos, Fazilka, Punjab
+              <strong className="text-gray-900">Business:</strong> G.K. Medicos, City, Punjab
             </p>
             <p>
-              <strong className="text-gray-900">Contact:</strong> +91 98765-43210
+              <strong className="text-gray-900">Contact:</strong> +91 9876543210
             </p>
           </div>
         </div>

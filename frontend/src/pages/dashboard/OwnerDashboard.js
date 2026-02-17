@@ -12,6 +12,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from 'chart.js';
 import api from '../../utils/api';
 import { toast } from 'sonner';
@@ -25,7 +26,8 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const OwnerDashboard = () => {
@@ -43,9 +45,11 @@ const OwnerDashboard = () => {
   const [monthlySummary, setMonthlySummary] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+ useEffect(() => {
+  fetchDashboardData();
+}, []);
+
+
 
   const fetchDashboardData = async () => {
     try {

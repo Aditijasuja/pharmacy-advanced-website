@@ -41,20 +41,27 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/low-stock', authMiddleware, async (req, res) => {
+router.get('/low-stock', authMiddleware, ownerOnly, async (req, res) => {
   try {
+  
+
     const lowStock = await Medicine.find({
       $expr: { $lte: ['$quantity', '$lowStockThreshold'] }
     }).populate('supplierId', 'name phone');
 
+    
+
     res.json(lowStock);
+
   } catch (error) {
+  
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/expiry-alert', authMiddleware, async (req, res) => {
+router.get('/expiry-alert', authMiddleware, ownerOnly,  async (req, res) => {
   try {
+    
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
@@ -64,8 +71,25 @@ router.get('/expiry-alert', authMiddleware, async (req, res) => {
 
     res.json(expiringMedicines);
   } catch (error) {
+    
     res.status(500).json({ error: error.message });
   }
+});
+
+router.post("/bulk-delete", authMiddleware, ownerOnly, async(req,res)=>{
+  
+  try {
+    const { ids } = req.body;
+
+    await Medicine.deleteMany({
+      _id: { $in: ids },
+    });
+
+    res.json({ message: "Deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+
 });
 
 router.post('/', authMiddleware, ownerOnly, async (req, res) => {
@@ -89,7 +113,19 @@ router.post('/', authMiddleware, ownerOnly, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get("/:id", async(req,res)=>{
+ try {
+    const medicine = await Medicine.findById(req.params.id);
 
+    if (!medicine) {
+      return res.status(404).json({ error: "Medicine not found" });
+    }
+
+    res.json(medicine);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 router.put('/:id', authMiddleware, ownerOnly, async (req, res) => {
   try {
     const medicine = await Medicine.findByIdAndUpdate(
@@ -121,5 +157,6 @@ router.delete('/:id', authMiddleware, ownerOnly, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 export default router;

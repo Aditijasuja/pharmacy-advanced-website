@@ -1,52 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, ShoppingCart } from 'lucide-react';
-import { toast } from 'sonner';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import api from '../../utils/api';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import React, { useState, useEffect, useCallback } from "react";
+import { Search, Plus, Trash2, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import api from "../../utils/api";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+// const doc = new jsPDF();
 const CreateBillPage = () => {
   const [medicines, setMedicines] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState([]);
-  const [paymentMode, setPaymentMode] = useState('cash');
+  const [paymentMode, setPaymentMode] = useState("cash");
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+ 
+
+  const searchMedicines = useCallback(async () => {
+    try {
+      const response = await api.get(`/medicine?search=${searchTerm}`);
+      setMedicines(response.data);
+    } catch (error) {
+      toast.error("Failed to search medicines");
+    }
+  }, [searchTerm]);
+
+   useEffect(() => {
     if (searchTerm.length >= 2) {
       searchMedicines();
     } else {
       setMedicines([]);
     }
-  }, [searchTerm]);
-
-  const searchMedicines = async () => {
-    try {
-      const response = await api.get(`/medicine?search=${searchTerm}`);
-      setMedicines(response.data);
-    } catch (error) {
-      toast.error('Failed to search medicines');
-    }
-  };
+  }, [searchTerm, searchMedicines]);
 
   const addToCart = (medicine) => {
     const existingItem = cart.find((item) => item.medicineId === medicine._id);
 
     if (existingItem) {
       if (existingItem.quantity >= medicine.quantity) {
-        toast.error('Insufficient stock');
+        toast.error("Insufficient stock");
         return;
       }
       setCart(
         cart.map((item) =>
           item.medicineId === medicine._id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
+            : item,
+        ),
       );
     } else {
       setCart([
@@ -66,7 +75,7 @@ const CreateBillPage = () => {
   const updateQuantity = (medicineId, newQuantity) => {
     const item = cart.find((i) => i.medicineId === medicineId);
     if (newQuantity > item.maxStock) {
-      toast.error('Insufficient stock');
+      toast.error("Insufficient stock");
       return;
     }
     if (newQuantity < 1) {
@@ -75,8 +84,10 @@ const CreateBillPage = () => {
     }
     setCart(
       cart.map((item) =>
-        item.medicineId === medicineId ? { ...item, quantity: newQuantity } : item
-      )
+        item.medicineId === medicineId
+          ? { ...item, quantity: newQuantity }
+          : item,
+      ),
     );
   };
 
@@ -87,81 +98,133 @@ const CreateBillPage = () => {
   const calculateTotal = () => {
     const subtotal = cart.reduce(
       (sum, item) => sum + item.priceAtSale * item.quantity,
-      0
+      0,
     );
     return Math.max(0, subtotal - discount);
   };
 
-  const generatePDF = (sale) => {
-    const doc = new jsPDF();
+const generatePDF = (sale) => {
+  const doc = new jsPDF();
 
-    doc.setFontSize(20);
-    doc.text('G.K. Medicos', 105, 15, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text('Fazilka, Punjab - 152123', 105, 22, { align: 'center' });
-    doc.text('Phone: +91 98765-43210', 105, 28, { align: 'center' });
 
-    doc.setLineWidth(0.5);
-    doc.line(20, 32, 190, 32);
+  doc.setFillColor(0, 102, 204);
+  doc.rect(0, 0, 210, 30, "F");
 
-    doc.setFontSize(12);
-    doc.text(`Invoice #${sale._id.slice(-8).toUpperCase()}`, 20, 40);
-    doc.text(`Date: ${new Date(sale.date).toLocaleString()}`, 20, 47);
-    doc.text(`Payment: ${sale.paymentMode.toUpperCase()}`, 20, 54);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.text("G.K. MEDICOS", 105, 18, { align: "center" });
 
-    const tableData = sale.medicines.map((item) => [
-      item.name,
-      item.quantity,
-      `₹${item.priceAtSale.toFixed(2)}`,
-      `₹${(item.priceAtSale * item.quantity).toFixed(2)}`,
-    ]);
+  doc.setFontSize(10);
+  doc.text("Punjab", 105, 24, { align: "center" });
+  doc.setFontSize(10);
+  doc.text("+91 9876543210", 105, 24, { align: "center" });
 
-    doc.autoTable({
-      startY: 60,
-      head: [['Medicine', 'Qty', 'Price', 'Total']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { fillColor: [0, 102, 204] },
+  doc.setTextColor(0, 0, 0);
+
+
+
+  doc.setFontSize(12);
+  doc.text(`Invoice ID: ${sale._id.slice(-8).toUpperCase()}`, 20, 45);
+  doc.text(`Date: ${new Date(sale.date).toLocaleString()}`, 20, 52);
+  doc.text(`Payment Mode: ${sale.paymentMode.toUpperCase()}`, 20, 59);
+
+  doc.line(20, 65, 190, 65);
+
+ 
+
+  const tableData = sale.medicines.map((item, index) => [
+    index + 1,
+    item.name,
+    item.quantity,
+    `₹${Number(item.priceAtSale).toFixed(2)}`,
+    `₹${(item.priceAtSale * item.quantity).toFixed(2)}`,
+  ]);
+
+  autoTable(doc, {
+    startY: 70,
+    head: [["#", "Medicine", "Qty", "Price", "Total"]],
+    body: tableData,
+    theme: "grid",
+    styles: {
+      fontSize: 10,
+      cellPadding: 4,
+    },
+    headStyles: {
+      fillColor: [0, 102, 204],
+      textColor: 255,
+      halign: "center",
+    },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 10 },
+      2: { halign: "center" },
+      3: { halign: "center" },
+      4: { halign: "center" },
+    },
+  });
+
+  const finalY = doc.lastAutoTable.finalY + 10;
+
+
+
+  doc.setFontSize(12);
+
+  const subtotal = sale.totalAmount + (sale.discount || 0);
+
+  doc.text("Subtotal:", 130, finalY);
+  doc.text(`₹${subtotal.toFixed(2)}`, 190, finalY, { align: "right" });
+
+  if (sale.discount > 0) {
+    doc.text("Discount:", 130, finalY + 7);
+    doc.text(`- ₹${sale.discount.toFixed(2)}`, 190, finalY + 7, {
+      align: "right",
     });
+  }
 
-    const finalY = doc.lastAutoTable.finalY + 10;
+  doc.setFontSize(14);
+  doc.setFont(undefined, "bold");
+  doc.text("Total Amount:", 130, finalY + 16);
+  doc.text(`₹${sale.totalAmount.toFixed(2)}`, 190, finalY + 16, {
+    align: "right",
+  });
 
-    doc.text(`Subtotal: ₹${(sale.totalAmount + sale.discount).toFixed(2)}`, 140, finalY);
-    if (sale.discount > 0) {
-      doc.text(`Discount: -₹${sale.discount.toFixed(2)}`, 140, finalY + 7);
-    }
-    doc.setFontSize(14);
-    doc.text(`Total: ₹${sale.totalAmount.toFixed(2)}`, 140, finalY + 14);
+  doc.setFont(undefined, "normal");
 
-    doc.setFontSize(10);
-    doc.text('Thank you for your purchase!', 105, finalY + 30, { align: 'center' });
 
-    doc.save(`invoice-${sale._id}.pdf`);
-  };
+  doc.setFontSize(10);
+  doc.text("Thank you for your purchase!", 105, finalY + 35, {
+    align: "center",
+  });
+
+ 
+
+  doc.save(`Invoice-${sale._id}.pdf`);
+};
+
+
 
   const handleCreateBill = async () => {
     if (cart.length === 0) {
-      toast.error('Cart is empty');
+      toast.error("Cart is empty");
       return;
     }
 
     setLoading(true);
     try {
-      const response = await api.post('/sales', {
+      const response = await api.post("/sales", {
         medicines: cart,
         totalAmount: calculateTotal(),
         discount: discount || 0,
         paymentMode,
       });
 
-      toast.success('Bill created successfully');
+      toast.success("Bill created successfully");
       generatePDF(response.data.sale);
 
       setCart([]);
       setDiscount(0);
-      setSearchTerm('');
+      setSearchTerm("");
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to create bill');
+      toast.error(error.response?.data?.error);
     } finally {
       setLoading(false);
     }
@@ -170,7 +233,10 @@ const CreateBillPage = () => {
   return (
     <div className="space-y-6" data-testid="create-bill-page">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Manrope, sans-serif' }}>
+        <h1
+          className="text-3xl font-bold text-gray-900 mb-2"
+          style={{ fontFamily: "Manrope, sans-serif" }}
+        >
           Create New Bill
         </h1>
         <p className="text-gray-600">Search medicines and generate invoice</p>
@@ -179,7 +245,9 @@ const CreateBillPage = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Search Medicines</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              Search Medicines
+            </h3>
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
@@ -201,13 +269,18 @@ const CreateBillPage = () => {
                     data-testid={`medicine-item-${medicine._id}`}
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{medicine.name}</p>
+                      <p className="font-medium text-gray-900">
+                        {medicine.name}
+                      </p>
                       <p className="text-sm text-gray-600">
-                        Batch: {medicine.batchNumber} | Stock: {medicine.quantity}
+                        Batch: {medicine.batchNumber} | Stock:{" "}
+                        {medicine.quantity}
                       </p>
                     </div>
                     <div className="text-right mr-4">
-                      <p className="text-lg font-bold text-blue-600">₹{medicine.sellingPrice}</p>
+                      <p className="text-lg font-bold text-blue-600">
+                        ₹{medicine.sellingPrice}
+                      </p>
                     </div>
                     <Button
                       onClick={() => addToCart(medicine)}
@@ -223,7 +296,10 @@ const CreateBillPage = () => {
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg" data-testid="cart-section">
+          <div
+            className="bg-white p-6 rounded-2xl shadow-lg"
+            data-testid="cart-section"
+          >
             <h3 className="text-lg font-bold text-gray-900 mb-4">Cart Items</h3>
             {cart.length === 0 ? (
               <div className="text-center py-12">
@@ -240,7 +316,9 @@ const CreateBillPage = () => {
                   >
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-600">₹{item.priceAtSale} each</p>
+                      <p className="text-sm text-gray-600">
+                        ₹{item.priceAtSale} each
+                      </p>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Input
@@ -248,7 +326,12 @@ const CreateBillPage = () => {
                         min="1"
                         max={item.maxStock}
                         value={item.quantity}
-                        onChange={(e) => updateQuantity(item.medicineId, parseInt(e.target.value))}
+                        onChange={(e) =>
+                          updateQuantity(
+                            item.medicineId,
+                            parseInt(e.target.value),
+                          )
+                        }
                         className="w-20"
                         data-testid={`quantity-input-${item.medicineId}`}
                       />
@@ -271,12 +354,19 @@ const CreateBillPage = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-2xl shadow-lg sticky top-6" data-testid="billing-summary">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Billing Summary</h3>
+          <div
+            className="bg-white p-6 rounded-2xl shadow-lg sticky top-6"
+            data-testid="billing-summary"
+          >
+            <h3 className="text-lg font-bold text-gray-900 mb-6">
+              Billing Summary
+            </h3>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Mode</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Mode
+                </label>
                 <Select value={paymentMode} onValueChange={setPaymentMode}>
                   <SelectTrigger data-testid="payment-mode-select">
                     <SelectValue />
@@ -290,7 +380,9 @@ const CreateBillPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Discount (₹)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Discount (₹)
+                </label>
                 <Input
                   type="number"
                   min="0"
@@ -305,18 +397,28 @@ const CreateBillPage = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-semibold">
-                  ₹{cart.reduce((sum, item) => sum + item.priceAtSale * item.quantity, 0).toFixed(2)}
+                  ₹
+                  {cart
+                    .reduce(
+                      (sum, item) => sum + item.priceAtSale * item.quantity,
+                      0,
+                    )
+                    .toFixed(2)}
                 </span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Discount</span>
-                  <span className="font-semibold text-red-600">-₹{discount.toFixed(2)}</span>
+                  <span className="font-semibold text-red-600">
+                    -₹{discount.toFixed(2)}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t">
                 <span>Total</span>
-                <span className="text-blue-600">₹{calculateTotal().toFixed(2)}</span>
+                <span className="text-blue-600">
+                  ₹{calculateTotal().toFixed(2)}
+                </span>
               </div>
             </div>
 
@@ -326,7 +428,7 @@ const CreateBillPage = () => {
               disabled={loading || cart.length === 0}
               data-testid="create-bill-button"
             >
-              {loading ? 'Creating Bill...' : 'Create Bill & Print'}
+              {loading ? "Creating" : "Create Bill and Print"}
             </Button>
           </div>
         </div>

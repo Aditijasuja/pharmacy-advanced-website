@@ -47,7 +47,7 @@ const ContactPage = () => {
             Contact Us
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Get in touch with G.K. Medicos for medicines and healthcare services in Fazilka
+            Get in touch with G.K. Medicos for medicines and healthcare services in City
           </p>
         </div>
 
@@ -142,7 +142,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Address</h3>
-                    <p className="text-blue-100">G.K. Medicos<br />Fazilka, Punjab - 152123</p>
+                    <p className="text-blue-100">G.K. Medicos<br />City, Punjab</p>
                   </div>
                 </div>
 
@@ -153,7 +153,7 @@ const ContactPage = () => {
                   <div>
                     <h3 className="font-semibold mb-1">Phone</h3>
                     <a href="tel:+919876543210" className="text-blue-100 hover:text-white transition-colors">
-                      +91 98765-43210
+                      +91 9876543210
                     </a>
                   </div>
                 </div>
@@ -162,12 +162,7 @@ const ContactPage = () => {
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Mail className="w-6 h-6" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Email</h3>
-                    <a href="mailto:info@gkmedicos.com" className="text-blue-100 hover:text-white transition-colors">
-                      info@gkmedicos.com
-                    </a>
-                  </div>
+                 
                 </div>
 
                 <div className="flex items-start space-x-4">

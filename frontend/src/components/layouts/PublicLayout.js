@@ -17,11 +17,11 @@ const PublicLayout = () => {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <Phone className="w-3 h-3" />
-                  <span>+91 98765-43210</span>
+                  <span>+91 9876543210</span>
                 </div>
                 <div className="hidden md:flex items-center space-x-1">
                   <MapPin className="w-3 h-3" />
-                  <span>Fazilka, Punjab</span>
+                  <span>City, Punjab</span>
                 </div>
               </div>
               <div className="flex items-center space-x-1">
@@ -131,7 +131,7 @@ const PublicLayout = () => {
             <div>
               <h3 className="text-lg font-bold mb-4" style={{ fontFamily: 'Manrope, sans-serif' }}>G.K. Medicos</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Your trusted medical store in Fazilka since 1997. Quality medicines and healthcare products.
+                Your trusted medical store in City since 1997. Quality medicines and healthcare products.
               </p>
             </div>
             <div>
@@ -155,15 +155,14 @@ const PublicLayout = () => {
             <div>
               <h4 className="font-semibold mb-4">Contact Info</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>Fazilka, Punjab - 152123</li>
-                <li>Phone: +91 98765-43210</li>
-                <li>Email: info@gkmedicos.com</li>
-                <li>Hours: 8 AM - 10 PM</li>
+                <li>Punjab</li>
+                <li>Phone: +91 9876543210</li>
+                <li>Hours: 9 AM - 9 PM</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 G.K. Medicos. All rights reserved. | Medical store in Fazilka</p>
+            <p>&copy; 2024 G.K. Medicos. All rights reserved. | Medical store in City</p>
           </div>
         </div>
       </footer>

@@ -29,11 +29,11 @@ mongoose.connect(mongoUrl, {
   dbName: dbName,
   serverSelectionTimeoutMS: 5000
 })
-  .then(() => console.log('✅ MongoDB connected successfully'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 app.get('/api', (req, res) => {
-  res.json({ message: 'G.K. Medicos Pharmacy API - v1.0' });
+  res.json({ message: 'G.K. Medicos Pharmacy API' });
 });
 
 app.use('/api/auth', authRoutes);
@@ -46,9 +46,9 @@ app.use('/api/contact', contactRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default app;
