@@ -45,11 +45,7 @@ dump.rdb
 .DS_Store
 *.pem
 
-# Python
-__pycache__/
-*pyc*
-venv/
-.venv/
+
 
 # Development tools
 chainlit.md
@@ -60,8 +56,7 @@ chainlit.md
 # Deployment
 .vercel
 
-# Data and databases
-agenthub/agents/youtube/db
+
 
 # Archive files and large assets
 **/*.zip
