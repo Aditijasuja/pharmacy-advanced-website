@@ -24,8 +24,8 @@ const SuppliersPage = () => {
     gstNumber: "",
   });
   const [loading, setLoading] = useState(false);
-const [editId, setEditId] = useState(null);
-const [isEditMode, setIsEditMode] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     fetchSuppliers();
@@ -40,57 +40,56 @@ const [isEditMode, setIsEditMode] = useState(false);
     }
   };
   const handleDelete = async (id) => {
-  if (!window.confirm("Are you sure you want to delete this supplier?"))
-    return;
+    if (!window.confirm("Are you sure you want to delete this supplier?"))
+      return;
 
-  try {
-    await api.delete(`/supplier/${id}`);
-    toast.success("Supplier deleted successfully");
-    setSuppliers(suppliers.filter((s) => s._id !== id));
-  } catch (error) {
-    toast.error(error.response?.data?.error || "Failed to delete supplier");
-  }
-};
-const handleEdit = (supplier) => {
-  setFormData({
-    name: supplier.name,
-    phone: supplier.phone,
-    address: supplier.address,
-    
-  });
-
-  setEditId(supplier._id);
-  setIsEditMode(true);
-  setIsDialogOpen(true);
-};
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-
-  try {
-    if (isEditMode) {
-      await api.put(`/supplier/${editId}`, formData);
-      toast.success("Supplier updated successfully");
-    } else {
-      await api.post("/supplier", formData);
-      toast.success("Supplier added successfully");
+    try {
+      await api.delete(`/supplier/${id}`);
+      toast.success("Supplier deleted successfully");
+      setSuppliers(suppliers.filter((s) => s._id !== id));
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Failed to delete supplier");
     }
+  };
+  const handleEdit = (supplier) => {
+    setFormData({
+      name: supplier.name,
+      phone: supplier.phone,
+      address: supplier.address,
+    });
 
-    setFormData({ name: "", phone: "", address: "", gstNumber: "" });
-    setIsDialogOpen(false);
-    setIsEditMode(false);
-    setEditId(null);
-    fetchSuppliers();
-  } catch (error) {
-    toast.error(
-      error.response?.data?.error ||
-        (isEditMode ? "Failed to update supplier" : "Failed to add supplier")
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    setEditId(supplier._id);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (isEditMode) {
+        await api.put(`/supplier/${editId}`, formData);
+        toast.success("Supplier updated successfully");
+      } else {
+        await api.post("/supplier", formData);
+        toast.success("Supplier added successfully");
+      }
+
+      setFormData({ name: "", phone: "", address: "", gstNumber: "" });
+      setIsDialogOpen(false);
+      setIsEditMode(false);
+      setEditId(null);
+      fetchSuppliers();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.error ||
+          (isEditMode ? "Failed to update supplier" : "Failed to add supplier"),
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6" data-testid="suppliers-page">
@@ -117,8 +116,8 @@ const handleEdit = (supplier) => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-  {isEditMode ? "Edit Supplier" : "Add New Supplier"}
-</DialogTitle>
+                {isEditMode ? "Edit Supplier" : "Add New Supplier"}
+              </DialogTitle>
 
               <DialogDescription>
                 Add a new medicine supplier to your database
@@ -170,22 +169,19 @@ const handleEdit = (supplier) => {
                 />
               </div>
 
-             
-
               <DialogFooter>
                 <Button
                   type="submit"
                   disabled={loading}
                   data-testid="supplier-submit-button"
                 >
-                 {loading
-  ? isEditMode
-    ? "Updating..."
-    : "Adding..."
-  : isEditMode
-  ? "Update Supplier"
-  : "Add Supplier"}
-
+                  {loading
+                    ? isEditMode
+                      ? "Updating..."
+                      : "Adding..."
+                    : isEditMode
+                      ? "Update Supplier"
+                      : "Add Supplier"}
                 </Button>
               </DialogFooter>
             </form>
@@ -226,37 +222,29 @@ const handleEdit = (supplier) => {
                     <span className="text-gray-600">Address:</span>
                     <p className="text-gray-900">{supplier.address}</p>
                   </div>
-                  {supplier.gstNumber && (
-                    <div>
-                      <span className="text-gray-600">GST:</span>
-                      <p className="text-gray-900">{supplier.gstNumber}</p>
-                    </div>
-                  )}
+                 
                   <div className="pt-2">
                     <span className="text-xs text-gray-500">
                       Added: {new Date(supplier.createdAt).toLocaleDateString()}
                     </span>
                     <div className="flex gap-2 mt-4">
-  <Button
-    variant="outline"
-    size="sm"
-    onClick={() => handleEdit(supplier)}
-  >
-    Edit
-  </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(supplier)}
+                      >
+                        Edit
+                      </Button>
 
-  <Button
-    variant="destructive"
-    size="sm"
-    onClick={() => handleDelete(supplier._id)}
-  >
-    Delete
-  </Button>
-</div>
-
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(supplier._id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                  
-                  
                 </div>
               </div>
             ))}

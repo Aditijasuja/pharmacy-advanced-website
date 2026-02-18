@@ -93,7 +93,7 @@ router.post("/bulk-delete", authMiddleware, ownerOnly, async(req,res)=>{
 });
 
 router.post('/', authMiddleware, ownerOnly, async (req, res) => {
-  console.log('POST / handler called');
+  
   try {
     console.log('Creating medicine with data:', req.body);
     const medicine = new Medicine(req.body);

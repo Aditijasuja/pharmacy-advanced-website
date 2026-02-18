@@ -25,7 +25,6 @@ const LoginPage = () => {
 
       toast.success('Login successful!');
       navigate('/dashboard');
-      window.location.reload();
     } catch (error) {
       toast.error(error.response?.data?.error || 'Login failed');
     } finally {

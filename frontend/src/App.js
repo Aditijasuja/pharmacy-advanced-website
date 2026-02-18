@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
-import { Toaster } from './components/ui/sonner';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import "./App.css";
+import { Toaster } from "./components/ui/sonner";
 
-import PublicLayout from './components/layouts/PublicLayout';
-import DashboardLayout from './components/layouts/DashboardLayout';
-import HomePage from './pages/public/HomePage';
-import AboutPage from './pages/public/AboutPage';
-import ServicesPage from './pages/public/ServicesPage';
-import ContactPage from './pages/public/ContactPage';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import OwnerDashboard from './pages/dashboard/OwnerDashboard';
-import StaffDashboard from './pages/dashboard/StaffDashboard';
-import MedicinesPage from './pages/dashboard/MedicinesPage';
-import AddMedicinePage from './pages/dashboard/AddMedicinePage';
-import SuppliersPage from './pages/dashboard/SuppliersPage';
-import SalesPage from './pages/dashboard/SalesPage';
-import CreateBillPage from './pages/dashboard/CreateBillPage';
-import ReportsPage from './pages/dashboard/ReportsPage';
-import SettingsPage from './pages/dashboard/SettingsPage';
+import PublicLayout from "./components/layouts/PublicLayout";
+import DashboardLayout from "./components/layouts/DashboardLayout";
+import HomePage from "./pages/public/HomePage";
+import AboutPage from "./pages/public/AboutPage";
+import ServicesPage from "./pages/public/ServicesPage";
+import ContactPage from "./pages/public/ContactPage";
+import LoginPage from "./pages/auth/LoginPage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import OwnerDashboard from "./pages/dashboard/OwnerDashboard";
+import StaffDashboard from "./pages/dashboard/StaffDashboard";
+import MedicinesPage from "./pages/dashboard/MedicinesPage";
+import AddMedicinePage from "./pages/dashboard/AddMedicinePage";
+import SuppliersPage from "./pages/dashboard/SuppliersPage";
+import SalesPage from "./pages/dashboard/SalesPage";
+import CreateBillPage from "./pages/dashboard/CreateBillPage";
+import ReportsPage from "./pages/dashboard/ReportsPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   if (!token) {
     return <Navigate to="/login" />;
@@ -40,7 +40,7 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -71,13 +71,18 @@ function App() {
             <Route
               index
               element={
-                user?.role === 'owner' ? <OwnerDashboard /> : <StaffDashboard />
+                JSON.parse(localStorage.getItem("user"))?.role === "owner" ? (
+                  <OwnerDashboard />
+                ) : (
+                  <StaffDashboard />
+                )
               }
             />
+
             <Route
               path="medicines"
               element={
-                <ProtectedRoute allowedRoles={['owner']}>
+                <ProtectedRoute allowedRoles={["owner"]}>
                   <MedicinesPage />
                 </ProtectedRoute>
               }
@@ -85,7 +90,7 @@ function App() {
             <Route
               path="add-medicine"
               element={
-                <ProtectedRoute allowedRoles={['owner']}>
+                <ProtectedRoute allowedRoles={["owner"]}>
                   <AddMedicinePage />
                 </ProtectedRoute>
               }
@@ -93,7 +98,7 @@ function App() {
             <Route
               path="suppliers"
               element={
-                <ProtectedRoute allowedRoles={['owner']}>
+                <ProtectedRoute allowedRoles={["owner"]}>
                   <SuppliersPage />
                 </ProtectedRoute>
               }
@@ -103,12 +108,15 @@ function App() {
             <Route
               path="reports"
               element={
-                <ProtectedRoute allowedRoles={['owner']}>
+                <ProtectedRoute allowedRoles={["owner"]}>
                   <ReportsPage />
                 </ProtectedRoute>
               }
             />
-            <Route path="/dashboard/add-medicine/:id" element={<AddMedicinePage />} />
+            <Route
+              path="/dashboard/add-medicine/:id"
+              element={<AddMedicinePage />}
+            />
 
             <Route path="settings" element={<SettingsPage />} />
           </Route>
