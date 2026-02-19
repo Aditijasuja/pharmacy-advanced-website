@@ -22,8 +22,8 @@ const CreateBillPage = () => {
   const [paymentMode, setPaymentMode] = useState("cash");
   const [discount, setDiscount] = useState(0);
   const [loading, setLoading] = useState(false);
-
- 
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
 
   const searchMedicines = useCallback(async () => {
     try {
@@ -34,7 +34,7 @@ const CreateBillPage = () => {
     }
   }, [searchTerm]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (searchTerm.length >= 2) {
       searchMedicines();
     } else {
@@ -103,104 +103,100 @@ const CreateBillPage = () => {
     return Math.max(0, subtotal - discount);
   };
 
-const generatePDF = (sale) => {
-  const doc = new jsPDF();
+  const generatePDF = (sale) => {
+    const doc = new jsPDF();
 
+    doc.setFillColor(0, 102, 204);
+    doc.rect(0, 0, 210, 30, "F");
 
-  doc.setFillColor(0, 102, 204);
-  doc.rect(0, 0, 210, 30, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text("G.K. MEDICOS", 105, 18, { align: "center" });
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.text("G.K. MEDICOS", 105, 18, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("Punjab", 105, 24, { align: "center" });
+    doc.setFontSize(10);
+    doc.text("+91 9876543210", 105, 24, { align: "center" });
 
-  doc.setFontSize(10);
-  doc.text("Punjab", 105, 24, { align: "center" });
-  doc.setFontSize(10);
-  doc.text("+91 9876543210", 105, 24, { align: "center" });
+    doc.setTextColor(0, 0, 0);
 
-  doc.setTextColor(0, 0, 0);
+    doc.setFontSize(12);
+    doc.text(`Invoice ID: ${sale._id.slice(-8).toUpperCase()}`, 20, 45);
+    doc.text(`Date: ${new Date(sale.date).toLocaleString()}`, 20, 52);
+    
 
+    doc.text(`Payment Mode: ${sale.paymentMode.toUpperCase()}`, 20, 59);
+if (sale.buyerName) {
+      doc.text(`Buyer Name: ${sale.buyerName}`, 20, 66);
+    }
 
+    if (sale.buyerPhone) {
+      doc.text(`Phone: ${sale.buyerPhone}`, 20, 73);
+    }
+    doc.line(20, 65, 190, 65);
 
-  doc.setFontSize(12);
-  doc.text(`Invoice ID: ${sale._id.slice(-8).toUpperCase()}`, 20, 45);
-  doc.text(`Date: ${new Date(sale.date).toLocaleString()}`, 20, 52);
-  doc.text(`Payment Mode: ${sale.paymentMode.toUpperCase()}`, 20, 59);
+    const tableData = sale.medicines.map((item, index) => [
+      index + 1,
+      item.name,
+      item.quantity,
+      `₹${Number(item.priceAtSale).toFixed(2)}`,
+      `₹${(item.priceAtSale * item.quantity).toFixed(2)}`,
+    ]);
 
-  doc.line(20, 65, 190, 65);
+    autoTable(doc, {
+      startY: 80,
+      head: [["#", "Medicine", "Qty", "Price", "Total"]],
+      body: tableData,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 4,
+      },
+      headStyles: {
+        fillColor: [0, 102, 204],
+        textColor: 255,
+        halign: "center",
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 10 },
+        2: { halign: "center" },
+        3: { halign: "center" },
+        4: { halign: "center" },
+      },
+    });
 
- 
+    const finalY = doc.lastAutoTable.finalY + 10;
 
-  const tableData = sale.medicines.map((item, index) => [
-    index + 1,
-    item.name,
-    item.quantity,
-    `₹${Number(item.priceAtSale).toFixed(2)}`,
-    `₹${(item.priceAtSale * item.quantity).toFixed(2)}`,
-  ]);
+    doc.setFontSize(12);
 
-  autoTable(doc, {
-    startY: 70,
-    head: [["#", "Medicine", "Qty", "Price", "Total"]],
-    body: tableData,
-    theme: "grid",
-    styles: {
-      fontSize: 10,
-      cellPadding: 4,
-    },
-    headStyles: {
-      fillColor: [0, 102, 204],
-      textColor: 255,
-      halign: "center",
-    },
-    columnStyles: {
-      0: { halign: "center", cellWidth: 10 },
-      2: { halign: "center" },
-      3: { halign: "center" },
-      4: { halign: "center" },
-    },
-  });
+    const subtotal = sale.totalAmount + (sale.discount || 0);
 
-  const finalY = doc.lastAutoTable.finalY + 10;
+    doc.text("Subtotal:", 130, finalY);
+    doc.text(`${subtotal.toFixed(2)}Rs`, 190, finalY, { align: "right" });
 
+    if (sale.discount > 0) {
+      doc.text("Discount:", 130, finalY + 7);
+      doc.text(`- ${sale.discount.toFixed(2)}Rs`, 190, finalY + 7, {
+        align: "right",
+      });
+    }
 
-
-  doc.setFontSize(12);
-
-  const subtotal = sale.totalAmount + (sale.discount || 0);
-
-  doc.text("Subtotal:", 130, finalY);
-  doc.text(`₹${subtotal.toFixed(2)}`, 190, finalY, { align: "right" });
-
-  if (sale.discount > 0) {
-    doc.text("Discount:", 130, finalY + 7);
-    doc.text(`- ₹${sale.discount.toFixed(2)}`, 190, finalY + 7, {
+    doc.setFontSize(14);
+    doc.setFont(undefined, "bold");
+    doc.text("Total Amount:", 130, finalY + 16);
+    doc.text(`${sale.totalAmount.toFixed(2)}Rs`, 190, finalY + 16, {
       align: "right",
     });
-  }
 
-  doc.setFontSize(14);
-  doc.setFont(undefined, "bold");
-  doc.text("Total Amount:", 130, finalY + 16);
-  doc.text(`₹${sale.totalAmount.toFixed(2)}`, 190, finalY + 16, {
-    align: "right",
-  });
+    doc.setFont(undefined, "normal");
 
-  doc.setFont(undefined, "normal");
+    doc.setFontSize(10);
+    doc.text("Thank you for your purchase!", 105, finalY + 35, {
+      align: "center",
+    });
 
-
-  doc.setFontSize(10);
-  doc.text("Thank you for your purchase!", 105, finalY + 35, {
-    align: "center",
-  });
-
- 
-
-  doc.save(`Invoice-${sale._id}.pdf`);
-};
-
-
+    doc.save(`Invoice-${sale._id}.pdf`);
+  };
 
   const handleCreateBill = async () => {
     if (cart.length === 0) {
@@ -215,6 +211,8 @@ const generatePDF = (sale) => {
         totalAmount: calculateTotal(),
         discount: discount || 0,
         paymentMode,
+        buyerName,
+        buyerPhone,
       });
 
       toast.success("Bill created successfully");
@@ -223,6 +221,8 @@ const generatePDF = (sale) => {
       setCart([]);
       setDiscount(0);
       setSearchTerm("");
+      setBuyerName("");
+      setBuyerPhone("");
     } catch (error) {
       toast.error(error.response?.data?.error);
     } finally {
@@ -363,6 +363,28 @@ const generatePDF = (sale) => {
             </h3>
 
             <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Buyer Name
+                </label>
+                <Input
+                  type="text"
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Buyer Phone
+                </label>
+                <Input
+                  type="text"
+                  value={buyerPhone}
+                  onChange={(e) => setBuyerPhone(e.target.value)}
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Payment Mode
