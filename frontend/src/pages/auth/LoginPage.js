@@ -26,7 +26,16 @@ const LoginPage = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed');
+      const data = error.response?.data;
+
+      // Email not verified — redirect to OTP page with userId
+      if (data?.requiresVerification) {
+        toast.warning('Please verify your email first. A new OTP has been sent.');
+        navigate('/verify-otp', { state: { userId: data.userId } });
+        return;
+      }
+
+      toast.error(data?.error || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -43,7 +52,7 @@ const LoginPage = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Manrope, sans-serif' }} data-testid="login-heading">
               Welcome Back
             </h1>
-            <p className="text-gray-600">Sign in to G.K. Medicos Dashboard</p>
+            <p className="text-gray-600">Sign in to your pharmacy dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,6 +91,16 @@ const LoginPage = () => {
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
+              </div>
+              {/* Forgot password link */}
+              <div className="text-right mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  data-testid="forgot-password-link"
+                >
+                  Forgot password?
+                </Link>
               </div>
             </div>
 

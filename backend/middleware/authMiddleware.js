@@ -3,7 +3,6 @@ import User from "../models/User.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // const token = req.header('Authorization')?.replace('Bearer ', '');
     const authHeader = req.header("Authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -17,16 +16,37 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
+
+    
+    const user = await User.findById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
-    req.user = user;
+    if (!user.isActive) {
+      return res.status(403).json({ error: "Account is deactivated" });
+    }
+
+    if (!user.isVerified) {
+      return res.status(403).json({ error: "Email not verified. Please verify your OTP first." });
+    }
+
+    if (!user.store) {
+      return res.status(403).json({ error: "No store linked to this account" });
+    }
+
+    
+    req.user   = user;
+    req.userId = user._id;
+    req.storeId = user.store; 
+
     next();
   } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Token expired. Please login again." });
+    }
+    return res.status(401).json({ error: "Invalid token" });
   }
 };
 

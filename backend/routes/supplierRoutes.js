@@ -6,18 +6,44 @@ import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
+// ── GET /api/supplier ─────────────────────────────────────────
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const suppliers = await Supplier.find().sort({ createdAt: -1 });
+    const suppliers = await Supplier.find({ store: req.storeId })
+      .sort({ createdAt: -1 });
+
     res.json(suppliers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// ── GET /api/supplier/:id ─────────────────────────────────────
+router.get('/:id', authMiddleware, async (req, res) => {
+  try {
+    const supplier = await Supplier.findOne({
+      _id: req.params.id,
+      store: req.storeId
+    });
+
+    if (!supplier) {
+      return res.status(404).json({ error: 'Supplier not found' });
+    }
+
+    res.json(supplier);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ── POST /api/supplier ────────────────────────────────────────
 router.post('/', authMiddleware, ownerOnly, [
   body('name').trim().notEmpty().withMessage('Supplier name is required'),
-  body('phone').trim().notEmpty().withMessage('Phone is required').isLength({min : 10 , max:10}).withMessage('Phone number must be of length 10').isNumeric().withMessage('Phone must contain only numbers'),
+  body('phone')
+    .trim()
+    .notEmpty().withMessage('Phone is required')
+    .isLength({ min: 10, max: 10 }).withMessage('Phone number must be 10 digits')
+    .isNumeric().withMessage('Phone must contain only numbers'),
   body('address').trim().notEmpty().withMessage('Address is required')
 ], async (req, res) => {
   try {
@@ -26,52 +52,53 @@ router.post('/', authMiddleware, ownerOnly, [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const supplier = new Supplier(req.body);
+    // store injected from token — never trusted from req.body
+    const supplier = new Supplier({ ...req.body, store: req.storeId });
     await supplier.save();
 
-    res.status(201).json({
-      message: 'Supplier added successfully',
-      supplier
-    });
+    res.status(201).json({ message: 'Supplier added successfully', supplier });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-router.put("/:id", async (req, res) => {
+
+// ── PUT /api/supplier/:id ─────────────────────────────────────
+router.put('/:id', authMiddleware, ownerOnly, async (req, res) => {
   try {
     const { name, phone, address, gstNumber } = req.body;
 
-    const updatedSupplier = await Supplier.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        phone,
-        address,
-        gstNumber,
-      },
+    const supplier = await Supplier.findOneAndUpdate(
+      { _id: req.params.id, store: req.storeId },
+      { name, phone, address, gstNumber },
       { new: true, runValidators: true }
     );
 
-    if (!updatedSupplier) {
-      return res.status(404).json({ error: "Supplier not found" });
+    if (!supplier) {
+      return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    res.status(200).json(updatedSupplier);
+    res.json({ message: 'Supplier updated successfully', supplier });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update supplier" });
+    res.status(500).json({ error: error.message });
   }
 });
-router.delete("/:id", async (req, res) => {
+
+// ── DELETE /api/supplier/:id ──────────────────────────────────
+router.delete('/:id', authMiddleware, ownerOnly, async (req, res) => {
   try {
-    const deletedSupplier = await Supplier.findByIdAndDelete(req.params.id);
+    const supplier = await Supplier.findOneAndDelete({
+      _id: req.params.id,
+      store: req.storeId
+    });
 
-    if (!deletedSupplier) {
-      return res.status(404).json({ error: "Supplier not found" });
+    if (!supplier) {
+      return res.status(404).json({ error: 'Supplier not found' });
     }
 
-    res.status(200).json({ message: "Supplier deleted successfully" });
+    res.json({ message: 'Supplier deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete supplier" });
+    res.status(500).json({ error: error.message });
   }
 });
+
 export default router;

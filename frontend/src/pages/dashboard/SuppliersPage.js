@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, BookOpen } from "lucide-react";              // added BookOpen
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";             // added
 import api from "../../utils/api";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -26,6 +27,7 @@ const SuppliersPage = () => {
   const [loading, setLoading] = useState(false);
   const [editId, setEditId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const navigate = useNavigate();                           // added
 
   useEffect(() => {
     fetchSuppliers();
@@ -39,6 +41,7 @@ const SuppliersPage = () => {
       toast.error("Failed to load suppliers");
     }
   };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this supplier?"))
       return;
@@ -51,13 +54,13 @@ const SuppliersPage = () => {
       toast.error(error.response?.data?.error || "Failed to delete supplier");
     }
   };
+
   const handleEdit = (supplier) => {
     setFormData({
       name: supplier.name,
       phone: supplier.phone,
       address: supplier.address,
     });
-
     setEditId(supplier._id);
     setIsEditMode(true);
     setIsDialogOpen(true);
@@ -118,7 +121,6 @@ const SuppliersPage = () => {
               <DialogTitle>
                 {isEditMode ? "Edit Supplier" : "Add New Supplier"}
               </DialogTitle>
-
               <DialogDescription>
                 Add a new medicine supplier to your database
               </DialogDescription>
@@ -214,20 +216,36 @@ const SuppliersPage = () => {
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="text-gray-600">Phone:</span>
-                    <p className="text-gray-900 font-medium">
-                      {supplier.phone}
-                    </p>
+                    <p className="text-gray-900 font-medium">{supplier.phone}</p>
                   </div>
                   <div>
                     <span className="text-gray-600">Address:</span>
                     <p className="text-gray-900">{supplier.address}</p>
                   </div>
-                 
+
+                  {/* added: balance due */}
+                  <div>
+                    <span className="text-gray-600">Balance Due:</span>
+                    <p className={`font-semibold ${supplier.currentBalance > 0 ? "text-orange-600" : "text-green-600"}`}>
+                      Rs.{(supplier.currentBalance || 0).toLocaleString()}
+                    </p>
+                  </div>
+
                   <div className="pt-2">
                     <span className="text-xs text-gray-500">
                       Added: {new Date(supplier.createdAt).toLocaleDateString()}
                     </span>
                     <div className="flex gap-2 mt-4">
+
+                      {/* added: ledger button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/dashboard/ledger/supplier/${supplier._id}`)}
+                      >
+                        <BookOpen className="w-4 h-4 mr-1" /> Ledger
+                      </Button>
+
                       <Button
                         variant="outline"
                         size="sm"

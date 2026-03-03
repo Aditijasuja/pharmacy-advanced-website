@@ -2,14 +2,20 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Contact from '../models/Contact.js';
 import authMiddleware from '../middleware/authMiddleware.js';
-import ownerOnly from '../middleware/ownerOnly.js';
 
 const router = express.Router();
 
+// ── POST /api/contact ─────────────────────────────────────────
+// Public — no auth needed, anyone can submit a support message
 router.post('/', [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('phone').trim().notEmpty().withMessage('Phone is required').isLength({min : 10 , max:10}).withMessage('Phone number must be of length 10').isNumeric().withMessage('Phone must contain only numbers'),
-  body('message').trim().notEmpty().withMessage('Message is required')
+  body('phone')
+    .trim()
+    .notEmpty().withMessage('Phone is required')
+    .isLength({ min: 10, max: 10 }).withMessage('Phone must be 10 digits')
+    .isNumeric().withMessage('Phone must contain only numbers'),
+  body('message').trim().notEmpty().withMessage('Message is required'),
+  body('email').optional().isEmail().withMessage('Invalid email address')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -21,15 +27,16 @@ router.post('/', [
     await contact.save();
 
     res.status(201).json({
-      message: 'Your message has been sent successfully. We will contact you soon.',
-      contact
+      message: 'Your message has been sent successfully. We will contact you soon.'
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/', authMiddleware, ownerOnly, async (req, res) => {
+// ── GET /api/contact ──────────────────────────────────────────
+// Protected — only logged-in owners can view submissions
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json(contacts);
@@ -38,12 +45,21 @@ router.get('/', authMiddleware, ownerOnly, async (req, res) => {
   }
 });
 
-router.patch('/:id/status', authMiddleware, ownerOnly, async (req, res) => {
+// ── PATCH /api/contact/:id/status ────────────────────────────
+router.patch('/:id/status', authMiddleware, [
+  body('status')
+    .isIn(['new', 'contacted', 'resolved'])
+    .withMessage('Status must be new, contacted, or resolved')
+], async (req, res) => {
   try {
-    const { status } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     const contact = await Contact.findByIdAndUpdate(
       req.params.id,
-      { status },
+      { status: req.body.status },
       { new: true }
     );
 

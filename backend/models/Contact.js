@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+// Contact is a platform-level support form submitted by anyone
+// (including unregistered users). It does NOT belong to a store.
 const contactSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,7 +15,8 @@ const contactSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    trim: true
+    trim: true,
+    lowercase: true
   },
   message: {
     type: String,
@@ -23,12 +26,9 @@ const contactSchema = new mongoose.Schema({
     type: String,
     enum: ['new', 'contacted', 'resolved'],
     default: 'new'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+
+}, { timestamps: true }); // replaces manual createdAt
 
 const Contact = mongoose.model('Contact', contactSchema);
 export default Contact;

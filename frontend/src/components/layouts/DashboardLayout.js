@@ -12,6 +12,9 @@ import {
   X,
   PlusCircle,
   TrendingUp,
+  Store,
+  BookOpen,   // added
+  UserCheck,  // added
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -35,25 +38,23 @@ const DashboardLayout = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  const ownerMenuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/dashboard/medicines', icon: Pill, label: 'Medicines' },
-    { path: '/dashboard/add-medicine', icon: PlusCircle, label: 'Add Medicine' },
-    { path: '/dashboard/suppliers', icon: Users, label: 'Suppliers' },
-    { path: '/dashboard/sales', icon: ShoppingCart, label: 'Sales' },
-    { path: '/dashboard/create-bill', icon: FileText, label: 'Create Bill' },
-    { path: '/dashboard/reports', icon: TrendingUp, label: 'Reports' },
-    { path: '/dashboard/settings', icon: Settings, label: 'Settings' },
+  // Every user is now an owner of their own store — single menu list
+  const menuItems = [
+    { path: '/dashboard',                icon: LayoutDashboard, label: 'Dashboard'     },
+    { path: '/dashboard/medicines',      icon: Pill,            label: 'Medicines'     },
+    { path: '/dashboard/add-medicine',   icon: PlusCircle,      label: 'Add Medicine'  },
+    { path: '/dashboard/suppliers',      icon: Users,           label: 'Suppliers'     },
+    { path: '/dashboard/customers',      icon: UserCheck,       label: 'Customers'     }, // added
+    { path: '/dashboard/sales',          icon: ShoppingCart,    label: 'Sales'         },
+    { path: '/dashboard/create-bill',    icon: FileText,        label: 'Create Bill'   },
+    { path: '/dashboard/ledger',         icon: BookOpen,        label: 'Ledger'        }, // added
+    { path: '/dashboard/reports',        icon: TrendingUp,      label: 'Reports'       },
+    { path: '/dashboard/store-profile',  icon: Store,           label: 'Store Profile' },
+    { path: '/dashboard/settings',       icon: Settings,        label: 'Settings'      },
   ];
 
-  const staffMenuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/dashboard/create-bill', icon: FileText, label: 'Create Bill' },
-    { path: '/dashboard/sales', icon: ShoppingCart, label: 'My Sales' },
-    { path: '/dashboard/settings', icon: Settings, label: 'Settings' },
-  ];
-
-  const menuItems = user?.role === 'owner' ? ownerMenuItems : staffMenuItems;
+  // Store name from user.store.name, fallback to user.name
+  const storeName = user?.store?.name || user?.name || 'My Pharmacy';
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -64,18 +65,37 @@ const DashboardLayout = () => {
         }`}
       >
         <div className="flex flex-col h-full">
+          {/* Sidebar header — shows store name */}
           <div className="p-6 border-b border-blue-500">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <span className="text-blue-600 font-bold text-xl">GK</span>
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                {user?.store?.logo ? (
+                  <img
+                    src={user.store.logo}
+                    alt="store logo"
+                    className="w-10 h-10 rounded-full object-contain"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  <span className="text-blue-600 font-bold text-xl">
+                    {storeName.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
-              <div>
-                <h2 className="text-white font-bold text-lg" style={{ fontFamily: 'Manrope, sans-serif' }}>G.K. Medicos</h2>
-                <p className="text-blue-200 text-xs capitalize">{user?.role || 'User'} Panel</p>
+              <div className="min-w-0">
+                <h2
+                  className="text-white font-bold text-lg truncate"
+                  style={{ fontFamily: 'Manrope, sans-serif' }}
+                  title={storeName}
+                >
+                  {storeName}
+                </h2>
+                <p className="text-blue-200 text-xs">Owner Panel</p>
               </div>
             </div>
           </div>
 
+          {/* Nav links */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
               const Icon = item.icon;
@@ -99,6 +119,7 @@ const DashboardLayout = () => {
             })}
           </nav>
 
+          {/* Logout */}
           <div className="p-4 border-t border-blue-500">
             <button
               onClick={handleLogout}
@@ -112,17 +133,17 @@ const DashboardLayout = () => {
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
-        ></div>
+        />
       )}
 
-      {/* Main Content */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
+        {/* Top bar */}
         <header className="bg-white shadow-sm z-10">
           <div className="flex items-center justify-between px-6 py-4">
             <button
@@ -133,16 +154,20 @@ const DashboardLayout = () => {
               {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            <h1 className="text-xl font-semibold text-gray-800" style={{ fontFamily: 'Manrope, sans-serif' }}>
+            <h1
+              className="text-xl font-semibold text-gray-800"
+              style={{ fontFamily: 'Manrope, sans-serif' }}
+            >
               Welcome, {user?.name || 'User'}
             </h1>
 
             <div className="flex items-center space-x-4">
               <div className="text-right hidden sm:block">
+                {/* Show owner name on top, store name below */}
                 <p className="text-sm font-medium text-gray-700">{user?.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                <p className="text-xs text-gray-500 truncate max-w-[140px]">{storeName}</p>
               </div>
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-semibold">
                   {user?.name?.charAt(0).toUpperCase()}
                 </span>
@@ -151,7 +176,7 @@ const DashboardLayout = () => {
           </div>
         </header>
 
-        {/* Page Content */}
+        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">
           <Outlet />
         </main>

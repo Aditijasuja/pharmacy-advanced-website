@@ -1,6 +1,6 @@
 const ownerOnly = (req, res, next) => {
-  if (req.user.role !== 'owner') {
-    return res.status(403).json({ error: 'Access denied. Owner only.' });
+  if (!req.storeId) {
+    return res.status(403).json({ error: 'Access denied. No store linked to this account.' });
   }
   next();
 };

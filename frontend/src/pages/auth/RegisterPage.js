@@ -5,14 +5,16 @@ import { toast } from 'sonner';
 import api from '../../utils/api';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'staff'
+    storeName: '',
+    storePhone: '',
+    gstNumber: '',
+    storeAddress: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,7 +22,7 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
@@ -29,19 +31,19 @@ const RegisterPage = () => {
     setLoading(true);
     try {
       const response = await api.post('/auth/register', formData);
-      const { token, user } = response.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      toast.success('Registration successful!');
-      navigate('/dashboard');
-      window.location.reload();
+      // Backend returns userId only — no token until OTP verified
+      toast.success('Account created! Please check your email for the OTP.');
+      navigate('/verify-otp', { state: { userId: response.data.userId } });
     } catch (error) {
       toast.error(error.response?.data?.error || 'Registration failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
@@ -55,18 +57,25 @@ const RegisterPage = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Manrope, sans-serif' }} data-testid="register-heading">
               Create Account
             </h1>
-            <p className="text-gray-600">Join G.K. Medicos Team</p>
+            <p className="text-gray-600">Register your pharmacy on our platform</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+
+            {/* ── Personal details ───────────────────── */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+              Your Details
+            </p>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
               </label>
               <Input
                 type="text"
+                name="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={handleChange}
                 placeholder="Your full name"
                 required
                 data-testid="register-name-input"
@@ -79,8 +88,9 @@ const RegisterPage = () => {
               </label>
               <Input
                 type="email"
+                name="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={handleChange}
                 placeholder="your.email@example.com"
                 required
                 data-testid="register-email-input"
@@ -94,8 +104,9 @@ const RegisterPage = () => {
               <div className="relative">
                 <Input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={handleChange}
                   placeholder="At least 6 characters"
                   required
                   data-testid="register-password-input"
@@ -111,19 +122,66 @@ const RegisterPage = () => {
               </div>
             </div>
 
+            {/* ── Store details ──────────────────────── */}
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest pt-2">
+              Store Details
+            </p>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Role
+                Store Name <span className="text-red-500">*</span>
               </label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                <SelectTrigger data-testid="register-role-select">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="staff">Staff</SelectItem>
-                  <SelectItem value="owner">Owner</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                type="text"
+                name="storeName"
+                value={formData.storeName}
+                onChange={handleChange}
+                placeholder="e.g. G.K. Medicos"
+                required
+                data-testid="register-store-name-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Store Phone <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <Input
+                type="tel"
+                name="storePhone"
+                value={formData.storePhone}
+                onChange={handleChange}
+                placeholder="10-digit phone number"
+                data-testid="register-store-phone-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                GST Number <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <Input
+                type="text"
+                name="gstNumber"
+                value={formData.gstNumber}
+                onChange={handleChange}
+                placeholder="e.g. 22AAAAA0000A1Z5"
+                data-testid="register-gst-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Store Address <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <Input
+                type="text"
+                name="storeAddress"
+                value={formData.storeAddress}
+                onChange={handleChange}
+                placeholder="Full store address"
+                data-testid="register-address-input"
+              />
             </div>
 
             <Button

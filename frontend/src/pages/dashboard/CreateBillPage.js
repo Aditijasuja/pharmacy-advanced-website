@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-// const doc = new jsPDF();
+
 const CreateBillPage = () => {
   const [medicines, setMedicines] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,100 +103,194 @@ const CreateBillPage = () => {
     return Math.max(0, subtotal - discount);
   };
 
+  // ── UPDATED: Professional pharmacy PDF ───────────────────────
   const generatePDF = (sale) => {
     const doc = new jsPDF();
+    const pageW = doc.internal.pageSize.getWidth();
 
+    // Read store info from localStorage
+    const storedUser  = JSON.parse(localStorage.getItem("user") || "{}");
+    const store       = storedUser?.store || {};
+    const storeName   = store.name    || "Pharmacy";
+    const storePhone  = store.phone   || "";
+    const storeAddr   = store.address || "";
+    const storeGST    = store.gstNumber || "";
+    const invoiceNum  = `INV-${sale._id.slice(-8).toUpperCase()}`;
+
+    // ── Header band ───────────────────────────────────────────
     doc.setFillColor(0, 102, 204);
-    doc.rect(0, 0, 210, 30, "F");
+    doc.rect(0, 0, pageW, 38, "F");
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
-    doc.text("G.K. MEDICOS", 105, 18, { align: "center" });
+    doc.setFont(undefined, "bold");
+    doc.text(storeName.toUpperCase(), pageW / 2, 14, { align: "center" });
 
-    doc.setFontSize(10);
-    doc.text("Punjab", 105, 24, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("+91 9876543210", 105, 24, { align: "center" });
+    doc.setFontSize(9);
+    doc.setFont(undefined, "normal");
+    const headerLine2Parts = [storeAddr, storePhone].filter(Boolean).join("  |  ");
+    if (headerLine2Parts) doc.text(headerLine2Parts, pageW / 2, 21, { align: "center" });
+    if (storeGST)         doc.text(`GSTIN: ${storeGST}`, pageW / 2, 27, { align: "center" });
 
+    // TAX INVOICE label
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(255, 255, 255);
+    doc.roundedRect(pageW / 2 - 22, 30, 44, 8, 2, 2, "F");
+    doc.setTextColor(0, 102, 204);
+    doc.setFontSize(9);
+    doc.setFont(undefined, "bold");
+    doc.text("TAX INVOICE", pageW / 2, 35.5, { align: "center" });
+
+    // ── Invoice meta box ──────────────────────────────────────
     doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont(undefined, "normal");
 
-    doc.setFontSize(12);
-    doc.text(`Invoice ID: ${sale._id.slice(-8).toUpperCase()}`, 20, 45);
-    doc.text(`Date: ${new Date(sale.date).toLocaleString()}`, 20, 52);
-    
+    const saleDate = new Date(sale.date || sale.createdAt);
+    const dateStr  = saleDate.toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric"
+    });
+    const timeStr  = saleDate.toLocaleTimeString("en-IN", {
+      hour: "2-digit", minute: "2-digit"
+    });
 
-    doc.text(`Payment Mode: ${sale.paymentMode.toUpperCase()}`, 20, 59);
-if (sale.buyerName) {
-      doc.text(`Buyer Name: ${sale.buyerName}`, 20, 66);
-    }
+    // Left col — invoice details
+    doc.setFont(undefined, "bold");
+    doc.text("Invoice No :", 14, 48);
+    doc.text("Date       :", 14, 55);
+    doc.text("Time       :", 14, 62);
+    doc.text("Payment    :", 14, 69);
 
-    if (sale.buyerPhone) {
-      doc.text(`Phone: ${sale.buyerPhone}`, 20, 73);
-    }
-    doc.line(20, 65, 190, 65);
+    doc.setFont(undefined, "normal");
+    doc.text(invoiceNum,                          42, 48);
+    doc.text(dateStr,                             42, 55);
+    doc.text(timeStr,                             42, 62);
+    doc.text(sale.paymentMode.toUpperCase(),      42, 69);
 
+    // Right col — patient details
+    doc.setFont(undefined, "bold");
+    doc.text("Patient     :", pageW / 2 + 5, 48);
+    doc.text("Mobile      :", pageW / 2 + 5, 55);
+
+    doc.setFont(undefined, "normal");
+    doc.text(sale.buyerName  || "Walk-in Customer", pageW / 2 + 30, 48);
+    doc.text(sale.buyerPhone || "—",                pageW / 2 + 30, 55);
+
+    // Divider
+    doc.setDrawColor(0, 102, 204);
+    doc.setLineWidth(0.5);
+    doc.line(14, 74, pageW - 14, 74);
+
+    // ── Medicine table ────────────────────────────────────────
     const tableData = sale.medicines.map((item, index) => [
       index + 1,
       item.name,
       item.quantity,
-      `₹${Number(item.priceAtSale).toFixed(2)}`,
-      `₹${(item.priceAtSale * item.quantity).toFixed(2)}`,
+      `Rs.${Number(item.priceAtSale).toFixed(2)}`,
+      `Rs.${(item.priceAtSale * item.quantity).toFixed(2)}`,
     ]);
 
     autoTable(doc, {
-      startY: 80,
-      head: [["#", "Medicine", "Qty", "Price", "Total"]],
+      startY: 78,
+      head: [["#", "Medicine Name", "Qty", "Unit Price", "Amount"]],
       body: tableData,
       theme: "grid",
       styles: {
-        fontSize: 10,
-        cellPadding: 4,
+        fontSize: 9,
+        cellPadding: 3,
+        textColor: [30, 30, 30],
       },
       headStyles: {
         fillColor: [0, 102, 204],
         textColor: 255,
+        fontStyle: "bold",
         halign: "center",
+      },
+      alternateRowStyles: {
+        fillColor: [240, 247, 255],
       },
       columnStyles: {
         0: { halign: "center", cellWidth: 10 },
-        2: { halign: "center" },
-        3: { halign: "center" },
-        4: { halign: "center" },
+        1: { cellWidth: 80 },
+        2: { halign: "center", cellWidth: 15 },
+        3: { halign: "right",  cellWidth: 30 },
+        4: { halign: "right",  cellWidth: 30 },
       },
     });
 
-    const finalY = doc.lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable.finalY;
 
-    doc.setFontSize(12);
+    // ── Totals block ──────────────────────────────────────────
+    const subtotal = cart.reduce((sum, item) => sum + item.priceAtSale * item.quantity, 0);
+    const discountAmt = sale.discount || 0;
+    const total = sale.totalAmount;
 
-    const subtotal = sale.totalAmount + (sale.discount || 0);
+    // Light background for totals
+    doc.setFillColor(245, 250, 255);
+    doc.rect(pageW / 2 + 10, finalY + 4, 76, discountAmt > 0 ? 26 : 18, "F");
 
-    doc.text("Subtotal:", 130, finalY);
-    doc.text(`${subtotal.toFixed(2)}Rs`, 190, finalY, { align: "right" });
+    doc.setFontSize(9);
+    doc.setFont(undefined, "normal");
+    doc.setTextColor(80, 80, 80);
 
-    if (sale.discount > 0) {
-      doc.text("Discount:", 130, finalY + 7);
-      doc.text(`- ${sale.discount.toFixed(2)}Rs`, 190, finalY + 7, {
-        align: "right",
-      });
+    doc.text("Subtotal:",            pageW / 2 + 14, finalY + 12);
+    doc.text(`Rs.${subtotal.toFixed(2)}`, pageW - 14, finalY + 12, { align: "right" });
+
+    if (discountAmt > 0) {
+      doc.setTextColor(200, 0, 0);
+      doc.text("Discount:",               pageW / 2 + 14, finalY + 19);
+      doc.text(`- Rs.${discountAmt.toFixed(2)}`, pageW - 14, finalY + 19, { align: "right" });
     }
 
-    doc.setFontSize(14);
+    // Total row
+    const totalY = finalY + (discountAmt > 0 ? 30 : 22);
+    doc.setFillColor(0, 102, 204);
+    doc.rect(pageW / 2 + 10, totalY - 6, 76, 10, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
     doc.setFont(undefined, "bold");
-    doc.text("Total Amount:", 130, finalY + 16);
-    doc.text(`${sale.totalAmount.toFixed(2)}Rs`, 190, finalY + 16, {
-      align: "right",
-    });
+    doc.text("TOTAL AMOUNT:", pageW / 2 + 14, totalY);
+    doc.text(`Rs.${total.toFixed(2)}`, pageW - 14, totalY, { align: "right" });
+
+    // Items count on left side
+    doc.setTextColor(80, 80, 80);
+    doc.setFontSize(9);
+    doc.setFont(undefined, "normal");
+    doc.text(`Total Items: ${sale.medicines.length}`, 14, finalY + 12);
+    doc.text(
+      `Total Qty: ${sale.medicines.reduce((s, i) => s + i.quantity, 0)}`,
+      14, finalY + 19
+    );
+
+    // ── Footer ────────────────────────────────────────────────
+    const footerY = totalY + 18;
+
+    doc.setDrawColor(0, 102, 204);
+    doc.setLineWidth(0.3);
+    doc.line(14, footerY, pageW - 14, footerY);
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont(undefined, "italic");
+    doc.text(
+      "Medicines once sold will not be taken back. Please check expiry date before purchase.",
+      pageW / 2, footerY + 6, { align: "center" }
+    );
 
     doc.setFont(undefined, "normal");
+    doc.text(
+      `Thank you for choosing ${storeName}. Get well soon!`,
+      pageW / 2, footerY + 12, { align: "center" }
+    );
 
-    doc.setFontSize(10);
-    doc.text("Thank you for your purchase!", 105, finalY + 35, {
-      align: "center",
-    });
+    // Powered by watermark (very light)
+    doc.setTextColor(200, 200, 200);
+    doc.setFontSize(7);
+    doc.text("Generated by Pharmacy Management System", pageW / 2, 292, { align: "center" });
 
-    doc.save(`Invoice-${sale._id}.pdf`);
+    doc.save(`${invoiceNum}.pdf`);
   };
+  // ─────────────────────────────────────────────────────────────
 
   const handleCreateBill = async () => {
     if (cart.length === 0) {
@@ -450,7 +544,7 @@ if (sale.buyerName) {
               disabled={loading || cart.length === 0}
               data-testid="create-bill-button"
             >
-              {loading ? "Creating" : "Create Bill and Print"}
+              {loading ? "Creating..." : "Create Bill & Print"}
             </Button>
           </div>
         </div>

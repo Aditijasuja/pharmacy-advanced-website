@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
 const supplierSchema = new mongoose.Schema({
+  store: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Store',
+    required: true,
+    index: true
+  },
   name: {
     type: String,
     required: true,
@@ -19,12 +25,13 @@ const supplierSchema = new mongoose.Schema({
   gstNumber: {
     type: String,
     trim: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+
+}, { timestamps: true }); // replaces manual createdAt
+
+
+// Fast lookup by store + name (used in dropdowns/search)
+supplierSchema.index({ store: 1, name: 1 });
 
 const Supplier = mongoose.model('Supplier', supplierSchema);
 export default Supplier;
