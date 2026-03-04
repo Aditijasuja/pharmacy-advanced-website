@@ -75,13 +75,14 @@ const purchaseSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
+//i have remove next function from this
 // Auto-calculate dueAmount and paymentStatus before every save
 purchaseSchema.pre('save', function (next) {
   this.dueAmount = this.totalCost - this.paidAmount;
   if (this.dueAmount <= 0)        this.paymentStatus = 'paid';
   else if (this.paidAmount > 0)   this.paymentStatus = 'partial';
   else                            this.paymentStatus = 'unpaid';
-  next();
+  
 });
 
 purchaseSchema.index({ store: 1, supplierId: 1 });
