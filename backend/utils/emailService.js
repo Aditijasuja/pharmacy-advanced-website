@@ -1,12 +1,11 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
-
-// ── Transporter setup ─────────────────────────────────────────
 // Works with Gmail, Outlook, Mailgun SMTP, or any SMTP provider.
-// Set credentials in your .env file.
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,       // e.g. smtp.gmail.com
+  family: 4,
   port: Number(process.env.EMAIL_PORT) || 587,
   secure: process.env.EMAIL_SECURE === "true", // true for port 465
   auth: {
@@ -17,9 +16,8 @@ const transporter = nodemailer.createTransport({
 
 const FROM = `"${process.env.EMAIL_FROM_NAME || "Pharmacy App"}" <${process.env.EMAIL_USER}>`;
 
-// ─────────────────────────────────────────────────────────────
+
 // Send OTP verification email
-// ─────────────────────────────────────────────────────────────
 export const sendOTPEmail = async ({ toEmail, toName, otp }) => {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 32px; border: 1px solid #e5e7eb; border-radius: 8px;">
