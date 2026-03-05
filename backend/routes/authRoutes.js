@@ -72,8 +72,11 @@ console.log("inside backend register api line 63");
       await session.commitTransaction();
 console.log("inside backend register api line 69");
       // Send OTP email (outside transaction — network call)
-      await sendOTPEmail({ toEmail: email, toName: name, otp: otpCode });
-
+try {
+  await sendOTPEmail({ toEmail: email, toName: name, otp: otpCode });
+} catch (err) {
+  console.error("Email sending failed:", err.message);
+}
       res.status(201).json({
         message: "Registration successful. Please check your email for the OTP to verify your account.",
         userId: user._id,  // frontend needs this to call /verify-otp
@@ -81,7 +84,7 @@ console.log("inside backend register api line 69");
 console.log("inside backend register api line 77");
     } catch (error) {
       console.log("Error ", error);
-      await session.abortTransaction();
+      // await session.abortTransaction();
       res.status(500).json({ error: error.message });
     } finally {
       session.endSession();
