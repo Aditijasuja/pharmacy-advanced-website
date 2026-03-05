@@ -49,14 +49,18 @@ console.log("inside backend register api line 35");
         return res.status(400).json({ error: "Email already registered" });
       }
 console.log("inside backend register api line 51");
-      // Create user (password hashed via pre-save hook in model)
-      const [user] = await User.create([{ name, email, password }], { session });
+     const user = new User({ name, email, password });
+await user.save({ session });
 
-      // Create store linked to this user
-      const [store] = await Store.create(
-        [{ name: storeName, owner: user._id, phone: storePhone, gstNumber, address: storeAddress }],
-        { session }
-      );
+const store = new Store({
+  name: storeName,
+  owner: user._id,
+  phone: storePhone,
+  gstNumber,
+  address: storeAddress
+});
+
+await store.save({ session });
 console.log("inside backend register api line 60");
       // Link store back to user
       user.store = store._id;
