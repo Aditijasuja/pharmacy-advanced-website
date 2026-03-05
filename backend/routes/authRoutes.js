@@ -17,17 +17,17 @@ const generateToken = (userId) =>
     expiresIn: process.env.JWT_EXPIRES_IN || "30d",
   });
 
-
+const registerValidation = [
+  body("name").trim().notEmpty().withMessage("Name is required"),
+  body("email").isEmail().withMessage("Valid email is required"),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+  body("storeName").trim().notEmpty().withMessage("Store name is required"),
+];
 router.post(
   "/register",
-  [
-    body("name").trim().notEmpty().withMessage("Name is required"),
-    body("email").isEmail().withMessage("Valid email is required"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters"),
-    body("storeName").trim().notEmpty().withMessage("Store name is required"),
-  ],
+  ...registerValidation,
   async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
