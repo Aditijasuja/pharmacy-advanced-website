@@ -28,7 +28,7 @@ const registerValidation = [
 router.post(
   "/register",
   ...registerValidation,
-  async (req, res) => {
+  async (req, res, next) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
