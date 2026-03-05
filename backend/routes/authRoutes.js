@@ -28,7 +28,7 @@ router.post(
       .withMessage("Password must be at least 6 characters"),
     body("storeName").trim().notEmpty().withMessage("Store name is required"),
   ],
-  async (req, res,next) => {
+  async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -74,6 +74,7 @@ router.post(
       });
 
     } catch (error) {
+      console.log("Error ", error);
       await session.abortTransaction();
       res.status(500).json({ error: error.message });
     } finally {
