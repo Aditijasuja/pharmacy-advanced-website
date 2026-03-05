@@ -33,10 +33,10 @@ router.post(
     session.startTransaction();
 
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+      // const errors = validationResult(req);
+      // if (!errors.isEmpty()) {
+      //   return res.status(400).json({ errors: errors.array() });
+      // }
 
       const { name, email, password, storeName, storePhone, gstNumber, storeAddress } = req.body;
 

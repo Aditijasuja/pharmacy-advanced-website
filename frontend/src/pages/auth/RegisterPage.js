@@ -30,6 +30,7 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
+      console.log("inside handlesubmit register button")
       const response = await api.post('/auth/register', formData);
 
       // Backend returns userId only — no token until OTP verified
