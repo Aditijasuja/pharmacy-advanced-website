@@ -30,9 +30,10 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      console.log("inside handlesubmit register button")
+    //remove debugging  
+      console.log("inside handlesubmit register button1")
       const response = await api.post('/auth/register', formData);
-
+ console.log("inside handlesubmit register button2")
       // Backend returns userId only — no token until OTP verified
       toast.success('Account created! Please check your email for the OTP.');
       navigate('/verify-otp', { state: { userId: response.data.userId } });

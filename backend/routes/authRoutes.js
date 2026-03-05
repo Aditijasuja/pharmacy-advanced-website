@@ -29,14 +29,16 @@ router.post(
   "/register",
   ...registerValidation,
   async (req, res, next) => {
+    console.log("inside backend register api line 32");
     const session = await mongoose.startSession();
     session.startTransaction();
-
+console.log("inside backend register api line 35");
     try {
-      // const errors = validationResult(req);
-      // if (!errors.isEmpty()) {
-      //   return res.status(400).json({ errors: errors.array() });
-      // }
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      console.log("inside backend register api line 41");
 
       const { name, email, password, storeName, storePhone, gstNumber, storeAddress } = req.body;
 
@@ -46,7 +48,7 @@ router.post(
         await session.abortTransaction();
         return res.status(400).json({ error: "Email already registered" });
       }
-
+console.log("inside backend register api line 51");
       // Create user (password hashed via pre-save hook in model)
       const [user] = await User.create([{ name, email, password }], { session });
 
@@ -55,16 +57,16 @@ router.post(
         [{ name: storeName, owner: user._id, phone: storePhone, gstNumber, address: storeAddress }],
         { session }
       );
-
+console.log("inside backend register api line 60");
       // Link store back to user
       user.store = store._id;
-
+console.log("inside backend register api line 63");
       // Generate OTP and attach to user
       const otpCode = user.generateOTP();
       await user.save({ session });
 
       await session.commitTransaction();
-
+console.log("inside backend register api line 69");
       // Send OTP email (outside transaction — network call)
       await sendOTPEmail({ toEmail: email, toName: name, otp: otpCode });
 
@@ -72,7 +74,7 @@ router.post(
         message: "Registration successful. Please check your email for the OTP to verify your account.",
         userId: user._id,  // frontend needs this to call /verify-otp
       });
-
+console.log("inside backend register api line 77");
     } catch (error) {
       console.log("Error ", error);
       await session.abortTransaction();
