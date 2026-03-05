@@ -4,7 +4,7 @@ dotenv.config();
 // Works with Gmail, Outlook, Mailgun SMTP, or any SMTP provider.
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,       // e.g. smtp.gmail.com
+  host: "74.125.140.108",       // e.g. smtp.gmail.com
   family: 4,
   port: Number(process.env.EMAIL_PORT) || 587,
   secure: process.env.EMAIL_SECURE === "true", // true for port 465
