@@ -183,30 +183,35 @@ router.post(
   ],
   async (req, res) => {
     try {
+      console.log("line 186");
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-
+console.log("line 1910");
       const { email, password } = req.body;
 
       // Explicitly select password (it's hidden by default via select:false)
       const user = await User.findOne({ email })
         .select("+password")
         .populate("store", "name gstNumber phone address logo");
+console.log("line 198");
 
       if (!user) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
+console.log("line 203");
 
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
+console.log("line 209");
 
       if (!user.isActive) {
         return res.status(403).json({ error: "Account is deactivated. Contact support." });
       }
+console.log("line 214");
 
       if (!user.isVerified) {
         // Resend a fresh OTP and ask them to verify
@@ -220,6 +225,8 @@ router.post(
           requiresVerification: true,
         });
       }
+console.log("line 229");
+
 
       const token = generateToken(user._id);
 
@@ -233,8 +240,10 @@ router.post(
           store: user.store,
         },
       });
+console.log("line 243");
 
     } catch (error) {
+      console.log("Error ", error);
       res.status(500).json({ error: error.message });
     }
   }
