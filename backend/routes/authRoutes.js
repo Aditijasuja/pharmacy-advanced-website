@@ -289,7 +289,11 @@ router.post(
 
       // The reset link sent to the user contains the RAW token
       const resetURL = `${process.env.CLIENT_URL}/reset-password?token=${rawToken}`;
-      await sendPasswordResetEmail({ toEmail: user.email, toName: user.name, resetURL });
+      try {
+  await sendOTPEmail({ toEmail: email, toName: name, resetURL});
+} catch (err) {
+  console.error("Email sending failed:", err.message);
+}
 
       res.json({ message: "If this email is registered, a reset link has been sent." });
 
