@@ -168,7 +168,11 @@ router.post(
       const otpCode = user.generateOTP();
       await user.save();
 
-      await sendOTPEmail({ toEmail: user.email, toName: user.name, otp: otpCode });
+     try {
+  await sendOTPEmail({ toEmail: email, toName: name, otp: otpCode });
+} catch (err) {
+  console.error("Email sending failed:", err.message);
+}
 
       res.json({ message: "A new OTP has been sent to your email." });
 
