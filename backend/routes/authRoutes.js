@@ -220,8 +220,11 @@ console.log("line 214");
         // Resend a fresh OTP and ask them to verify
         const otpCode = user.generateOTP();
         await user.save();
-        await sendOTPEmail({ toEmail: user.email, toName: user.name, otp: otpCode });
-
+try {
+  await sendOTPEmail({ toEmail: email, toName: name, otp: otpCode });
+} catch (err) {
+  console.error("Email sending failed:", err.message);
+}
         return res.status(403).json({
           error: "Email not verified. A new OTP has been sent to your email.",
           userId: user._id,
